@@ -2,10 +2,10 @@ package wavy
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/hashicorp/go-hclog"
 	"golang.org/x/oauth2"
@@ -16,22 +16,18 @@ const (
 	wavyBaseUrl = "https://wavy.fm/api/v1beta"
 )
 
+// Client
+// This interfacte marks the contract exposed by this SDK to interact
+// with the wavy API. You can implement this interface for usage in mock test.
 type Client interface {
+	// MetricsService
+	// Reference for accessing global wavy.fm metrics.
+	// https://wavy.fm/developers/docs/v1beta/metrics
 	MetricsService() MetricsService
 }
 
-type authContext struct {
-	bearerToken string
-	tokenType   string
-	expiresAt   time.Time
-
-	clientID      string
-	clienttSecret string
-}
-
 type client struct {
-	c *http.Client
-	*authContext
+	c      *http.Client
 	logger hclog.Logger
 
 	mService MetricsService
@@ -59,11 +55,7 @@ func NewClient(ctx context.Context, logger hclog.Logger, clientID, clientSecret 
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		TokenURL:     fmt.Sprintf("%s/token", wavyBaseUrl),
-		Scopes:       []string{},
-		EndpointParams: map[string][]string{
-			"": {},
-		},
-		AuthStyle: oauth2.AuthStyleInHeader,
+		AuthStyle:    oauth2.AuthStyleInHeader,
 	}
 
 	httpClient := conf.Client(ctx)
