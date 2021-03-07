@@ -24,17 +24,22 @@ type Client interface {
 	// Reference for accessing global wavy.fm metrics.
 	// https://wavy.fm/developers/docs/v1beta/metrics
 	MetricsService() MetricsService
+	// UserService Reference for accessing public user profiles.
+	// https://wavy.fm/developers/docs/v1beta/users
+	UserService() UserService
 }
 
 type client struct {
 	c      *http.Client
 	logger hclog.Logger
+}
 
-	mService MetricsService
+func (c *client) UserService() UserService {
+	return newUserService(c, c.logger)
 }
 
 func (c *client) MetricsService() MetricsService {
-	return c.mService
+	return newMetricsService(c, c.logger)
 }
 
 func NewClient(ctx context.Context, logger hclog.Logger, clientID, clientSecret string) Client {
@@ -61,9 +66,20 @@ func NewClient(ctx context.Context, logger hclog.Logger, clientID, clientSecret 
 	httpClient := conf.Client(ctx)
 	c.c = httpClient
 
-	c.mService = newMetricsService(c, logger)
-
 	return c
+}
+
+// ApiError defines the error object returned by wavy api.
+// For more info see: https://wavy.fm/developers/docs/v1beta/errors
+type ApiError struct {
+	Status int    `json:"status"`
+	Code   string `json:"code"`
+	Name   string `json:"name"`
+	Detail string `json:"detail"`
+}
+
+func (a *ApiError) Error() string {
+	return fmt.Sprintf("%d: %s", a.Status, a.Name)
 }
 
 func (c *client) do(req *http.Request) (*http.Response, error) {
@@ -76,7 +92,21 @@ func (c *client) do(req *http.Request) (*http.Response, error) {
 	}
 	req.URL = url
 
-	return c.c.Do(req)
+	res, err := c.c.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("%s: falied to execute request: %w", c.logger.Name(), err)
+	}
+
+	if res.StatusCode > 399 {
+		var apiErr ApiError
+		err := json.NewDecoder(res.Body).Decode(&apiErr)
+		if err != nil {
+			return nil, fmt.Errorf("%s: failed to parse error response with status code %d: %s", c.logger.Name(), res.StatusCode, err)
+		}
+		return nil, &apiErr
+	}
+
+	return res, nil
 }
 
 func (c *client) get(url string) (resp *http.Response, err error) {
