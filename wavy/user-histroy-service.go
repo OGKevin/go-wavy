@@ -1,6 +1,7 @@
 package wavy
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -11,13 +12,13 @@ import (
 type UserHistoryService interface {
 	// GetHistryStats
 	// Retrieves some statistics about the user's history. Note that private profiles will not be returned at all by this endpoint, regardless of authorization scopes.
-	GetStats() (*GetHistroyStatsResponse, error)
+	GetStats(ctx context.Context) (*GetHistroyStatsResponse, error)
 	// GetCurrent
 	// Retrieves the song, album, and artist(s) the user is currently listening to. Note that private profiles will not be returned at all by this endpoint, regardless of authorization scopes.
-	GetCurrent() (*GetCurrentResponse, error)
+	GetCurrent(ctx context.Context) (*GetCurrentResponse, error)
 	// GetRecent
 	// Retrieves the most recent listens recorded by the user. Note that private profiles will not be returned at all by this endpoint, regardless of authorization scopes.
-	GetRecent() (*GetRecentResponse, error)
+	GetRecent(ctx context.Context) (*GetRecentResponse, error)
 }
 
 type userHistroyService struct {
@@ -38,18 +39,18 @@ func newUserHistryService(uri UserURI, c *client, logger hclog.Logger) UserHisto
 }
 
 func (u *userHistroyService) buildUrl(path string) string {
-	return fmt.Sprintf("/user/%s/histroy%s", u.userUri, path)
+	return fmt.Sprintf("/users/%s/history%s", u.userUri.String(), path)
 }
 
 // GetStats
 // Retrieves some statistics about the user's history. Note that private profiles will not be returned at all by this endpoint, regardless of authorization scopes.
-func (u *userHistroyService) GetStats() (*GetHistroyStatsResponse, error) {
+func (u *userHistroyService) GetStats(ctx context.Context) (*GetHistroyStatsResponse, error) {
 	u.logger.Trace("fetching stats")
 	defer u.logger.Trace("finished fetching stats")
 
 	res, err := u.c.get(u.buildUrl("/stats"))
 	if err != nil {
-		return nil, fmt.Errorf("%s: failed to fetch stats for %q: %w", u.logger.Name(), u.userUri, err)
+		return nil, fmt.Errorf("%s: failed to fetch stats for %q: %w", u.logger.Name(), u.userUri.String(), err)
 	}
 
 	var statsRes GetHistroyStatsResponse
@@ -63,7 +64,7 @@ func (u *userHistroyService) GetStats() (*GetHistroyStatsResponse, error) {
 
 // GetCurrent
 // Retrieves the song, album, and artist(s) the user is currently listening to. Note that private profiles will not be returned at all by this endpoint, regardless of authorization scopes.
-func (u *userHistroyService) GetCurrent() (*GetCurrentResponse, error) {
+func (u *userHistroyService) GetCurrent(ctx context.Context) (*GetCurrentResponse, error) {
 	u.logger.Trace("fetching current")
 	defer u.logger.Trace("finished fetching current")
 
@@ -83,8 +84,7 @@ func (u *userHistroyService) GetCurrent() (*GetCurrentResponse, error) {
 
 // GetRecent
 // Retrieves the most recent listens recorded by the user. Note that private profiles will not be returned at all by this endpoint, regardless of authorization scopes.
-func (u *userHistroyService) GetRecent() (*GetRecentResponse, error) {
-	panic("not implemented") // TODO: Implement
+func (u *userHistroyService) GetRecent(ctx context.Context) (*GetRecentResponse, error) {
 	u.logger.Trace("fetching recent")
 	defer u.logger.Trace("finished fetching recent")
 
