@@ -2,12 +2,26 @@ package wavy
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/assert"
 )
+
+func ExampleNewClient() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
+	profile, err := c.UserService().GetProfile(ctx, UserURI{Username: "OGKevin"})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Print(profile.URI)
+}
 
 func TestNewClient(t *testing.T) {
 	type args struct {
