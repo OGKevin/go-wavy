@@ -16,10 +16,6 @@ func Test_userHistroyService_GetStats(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx     context.Context
 		userURI UserURI
@@ -61,10 +57,6 @@ func Test_userHistroyService_GetCurrent(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx     context.Context
 		userURI UserURI
@@ -104,10 +96,6 @@ func Test_userHistroyService_GetRecent(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx     context.Context
 		userURI UserURI

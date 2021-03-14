@@ -16,10 +16,6 @@ func Test_userService_GetProfile(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx     context.Context
 		userURI UserURI
@@ -55,8 +51,6 @@ func Test_userService_GetProfile(t *testing.T) {
 }
 
 func Test_userService_ParseUserURI(t *testing.T) {
-	type fields struct {
-	}
 	type args struct {
 		uri string
 	}

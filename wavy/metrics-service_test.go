@@ -16,10 +16,6 @@ func Test_metricsService_GetTotalListens(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx context.Context
 	}
@@ -55,10 +51,6 @@ func Test_metricsService_GetTotalUsers(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx context.Context
 	}
@@ -94,10 +86,6 @@ func Test_metricsService_GetUserListensLeaderboard(t *testing.T) {
 
 	c := NewClient(ctx, hclog.NewNullLogger(), os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"))
 
-	type fields struct {
-		c      *client
-		logger hclog.Logger
-	}
 	type args struct {
 		ctx context.Context
 	}
